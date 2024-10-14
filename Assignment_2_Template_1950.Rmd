@@ -1,0 +1,112 @@
+---
+title: "Assignment 2"
+subtitle: "Deconstruct, Reconstruct Web Report"
+author: "Joheb Shaikh (s3823492)"
+output: html_document
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+# Do not change these settings!
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+### {.tabset} 
+
+Click the **Original**, **Code** and **Reconstruction** tabs to read about the issues and how they were fixed. 
+
+#### Original
+
+<br>
+<center>
+<img src="data.png" width="80%">
+</center>
+<center>*Source: -https://howmuch.net/articles/wolds-highest-paid-athletes-in-top-sports *</center>
+<br>
+
+
+
+**Objective**
+
+In recent years sports personalities have gained a huge popularity not only in terms of their brand value but also in terms of money they get paid. The top-notch athletes who are paid big fat pay cheques mostly play sports like football, basketball, tennis. The original data visualisation tells us that their goal is to illustrate how these sportsmen from various sports have fared in terms of money they’ve earned in the year 2017. 
+
+The original visualisation caters to the target audience of sports analysts on various news channels and newspapers to show how much these sportsmen are earning from various endorsements. Sponsors with these different sports leagues also get benefited with the stardom of the players and they can also be viewed as a target audience in this visualisation.
+
+**The visualisation chosen had the following three main issues: -**
+
+* In this graph the first issue is **visual bombardment**, we see there are lots of unnecessary data and visuals provided which make it difficult to visualise the graph easily. Also, in this data there are so many graphic cues that take away the attention from their intended audience. It can be seen in the visualisation that players face and information of them are irrelevant in the graph also graph includes grid line which makes difficult to read the earnings of the players. 
+
+* The second issue is **poor colour scheme**,the data visualisation looks ambiguous and lacks clarification because the modulation of colour is not used very effectively. As we can see, identical colours are used, making the users hard to identify. For example, Beneath the graph, we could see several details that might cause a colour distinguishing issue to the audience.
+
+* The third issue is **inaccurate selection of graph**, here  the choice of the data visualisation is very substandard. When we see those, who earn more have a wide circle while those who earn less have a tiny circle, we just could not differentiate whose incomes are more from the graph. Hence this visualisation is not self-explanatory. 
+
+**Reference**
+
+* The world's Highest-paid athletes *in Top sports 2017*. Restored October 26, from Howmuch.net website: - https://howmuch.net/articles/wolds-highest-paid-athletes-in-top-sports
+
+
+#### Code
+
+The following code was used to fix the issues identified in the original. 
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+### Reading dataset
+highest_paid_athlete<-read.csv("athletes1.csv")
+
+# using trimws function to remove spacing or unnecessary tabs
+highest_paid_athlete$Sport<-trimws(highest_paid_athlete$Sport)
+highest_paid_athlete$Name<-trimws(highest_paid_athlete$Name)
+
+
+### selecting top 20 highest paid athelete
+hpa_1<-head(highest_paid_athlete,20)
+str(hpa_1)
+
+
+# changing column names for better understanding
+
+names(hpa_1)[names(hpa_1) == "Rank"] <- "Rank_of_Players" 
+names(hpa_1)[names(hpa_1) == "Name"] <- "Name_of_Players" 
+names(hpa_1)[names(hpa_1) == "X.Pay....mln."] <- "Payment" 
+names(hpa_1)[names(hpa_1) == "Salary.Winnings....mln."] <- "Salary/winnings" 
+names(hpa_1)[names(hpa_1) == "Endorsements....mln."] <- "Endorsements" 
+names(hpa_1)[names(hpa_1) == "Sport"] <- "Sport" 
+
+# created new column
+hpa_1_new=hpa_1
+hpa_1_new<-hpa_1%>%mutate(Percent_Earnings_from_endorsements= Endorsements/Payment*100)
+hpa_1_new$Percent_Earnings_from_endorsements=round(hpa_1_new$Percent_Earnings_from_endorsements,0)
+hpa_1_new
+
+# plot
+plot_bar<- ggplot(hpa_1_new,aes(x=reorder(Name_of_Players, Payment), y=Payment, fill= Sport)) +
+  geom_bar(stat = "identity")+
+  coord_flip()+
+  geom_text(aes(label=paste0(Payment,"M {", Percent_Earnings_from_endorsements,"%}")),hjust=1,size = 2.5,fontface = "bold")+
+  labs(title = "2017, Highest-paid athletes  ", subtitle = "with regard to percentage earnings from endorsements" , x="Players", y = "Athletes Payment-USD Millions (Percentage earnings from endorsements)",fill = "Sports")+
+  scale_fill_manual(values =rev(c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2")))+
+  theme_minimal()+
+  theme(panel.grid.major = element_blank(),
+        plot.title = element_text(hjust = 0.4, size = 15, face = "bold" ), plot.subtitle = element_text(hjust = 0.4, size = 15, face = "bold" ), axis.title.x = element_text(vjust = -1, size = 11, face = "bold"),axis.title.y = element_text(size = 11, face = "bold"),legend.title = element_text(face = "bold"))
+
+
+
+
+```
+
+**Data Reference**
+
+* The dataset of world's Highest-paid athletes in Top sports 2017 is taken from [Link](https://howmuch.net/sources/wolds-highest-paid-athletes-in-top-sports)
+
+
+#### Reconstruction
+
+The following plot corrects the key problems with the original plot as the information are now in a horizontal bar chart. This data visualisation displays players overall profits in terms of the percentage profits from the endorsement. We can see players who don't earn much yet are profiting from endorsement. This means that players have to be recognised and have huge personalities in their competitions. So that they will gain endorsement even though the players are not in their great form.
+
+```{r fig.align="center", echo = FALSE}
+plot_bar
+```
+
